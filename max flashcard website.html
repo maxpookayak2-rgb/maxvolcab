@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Flashcard Website 3~3</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* หน้าเลือกเซ็ต */
+        .set-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn-set {
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn-set:hover {
+            border-color: var(--primary);
+            background-color: #f5f3ff;
+            color: var(--primary);
+        }
+
+        .stats {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 280px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-sizing: border-box;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #f1f5f9;
+        }
+
+        .card-word {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .card-hint {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 15px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        button.btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        button.btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-wrong {
+            background-color: var(--danger);
+        }
+        .btn-wrong:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .btn-right {
+            background-color: var(--success);
+        }
+        .btn-right:hover {
+            background-color: var(--success-hover);
+        }
+
+        .completion-screen {
+            text-align: center;
+            background: white;
+            padding: 40px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .completion-screen h2 {
+            color: var(--success);
+            margin-top: 0;
+        }
+
+        .menu-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+
+        .btn-restart {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        .btn-restart:hover {
+            background-color: var(--primary-hover);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Max Flashcard Website 3~3</h1>
+    <div class="subtitle" id="subtitle">เลือกเซ็ตคำศัพท์ที่คุณต้องการฝึกฝน</div>
+
+    <!-- หน้าเลือกเซ็ต -->
+    <div id="selection-screen" class="set-selection">
+        <button class="btn-set" onclick="startSet(1)">
+            <span>🔥 เซ็ตที่ 1: กินเอาเป็น</span>
+            <span id="count-1" style="font-size: 0.85rem; color: #64748b;">กำลังโหลด...</span>
+        </button>
+        <button class="btn-set" onclick="startSet(2)">
+            <span>🔥 เซ็ตที่ 2: กินเอาอยู่</span>
+            <span id="count-2" style="font-size: 0.85rem; color: #64748b;">กำลังโหลด...</span>
+        </button>
+        <button class="btn-set" onclick="startSet(3)">
+            <span>🔥 เซ็ตที่ 3: กินเอาตาย</span>
+            <span id="count-3" style="font-size: 0.85rem; color: #64748b;">กำลังโหลด...</span>
+        </button>
+        <button class="btn-set" onclick="startSet('all')" style="background-color: #e0e7ff; border-color: #c7d2fe; color: var(--primary);">
+            <span>🚀 ลุยทั้งหมด (ทุกเซ็ต 3~3)</span>
+            <span id="count-all" style="font-size: 0.85rem; font-weight: bold;">ทั้งหมด</span>
+        </button>
+    </div>
+
+    <!-- หน้าเล่น Flashcard -->
+    <div id="flashcard-app" style="display: none; width: 100%;">
+        <div class="menu-bar">
+            <button class="btn-back" onclick="goHome()">⬅ เลือกเซ็ตอื่น</button>
+            <div id="stats" class="stats" style="margin: 0;">คำที่เหลือ: 0</div>
+        </div>
+
+        <div class="card-container" onclick="toggleFlip()">
+            <div class="card" id="card">
+                <div class="card-face card-front">
+                    <div class="card-word" id="front-word">Loading...</div>
+                    <div class="card-hint">แตะการ์ดเพื่อดูความหมาย</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-word" id="back-word">Loading...</div>
+                    <div class="card-hint">แตะการ์ดเพื่อกลับด้านหน้า</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons" id="action-buttons">
+            <button class="btn btn-wrong" onclick="answerCard(false)">❌ จำไม่ได้ / ผิด (วนซ้ำ)</button>
+            <button class="btn btn-right" onclick="answerCard(true)">✔️ จำได้ / ถูก</button>
+        </div>
+    </div>
+
+    <!-- หน้าแสดงผลเมื่อเคลียร์ครบ -->
+    <div id="completion-screen" class="completion-screen" style="display: none;">
+        <h2>🎉 ยอดเยี่ยมมาก!</h2>
+        <p>คุณฝึกฝนคำศัพท์เซ็ตนี้จนครบทุกคำเรียบร้อยแล้ว</p>
+        <button class="btn-restart" onclick="goHome()">กลับไปเลือกเซ็ตอื่น</button>
+    </div>
+</div>
+
+<script>
+    // ฐานข้อมูลคำศัพท์ทั้งหมดของคุณ
+    const rawData = [
+        { en: "Transport", th: "ยานพาหนะ / การขนส่ง" },
+        { en: "Transportation", th: "การคมนาคม" },
+        { en: "Terminal", th: "สถานี (รถไฟ) / อาคารโดยสาร (สนามบิน)" },
+        { en: "Departure", th: "ขาออก" },
+        { en: "Arrival", th: "ขาเข้า" },
+        { en: "Depart", th: "ออก" },
+        { en: "Arrive", th: "มาถึง" },
+        { en: "Platform", th: "ชานชาลา" },
+        { en: "Carriage", th: "ตู้รถไฟ" },
+        { en: "Surrounded", th: "ล้อมรอบ" },
+        { en: "Locals", th: "คนท้องถิ่น" },
+        { en: "Souvenirs, Token", th: "ของฝาก / เหรียญ" },
+        { en: "Rear", th: "ข้างใน" },
+        { en: "Reps, Representative", th: "ตัวแทน" },
+        { en: "Represent", th: "แทน" },
+        { en: "Flight", th: "เที่ยวบิน" },
+        { en: "Harbour, Port, Quay", th: "ท่าเรือ" },
+        { en: "Cruise", th: "การท่องเที่ยวสำราญ" },
+        { en: "Coach", th: "รถบัส 2 ชั้น" },
+        { en: "Nervous, Worried, Anxious", th: "กังวล" },
+        { en: "Take off", th: "เครื่องบินขึ้น" },
+        { en: "Land", th: "เครื่องบินลง" },
+        { en: "Get off", th: "ลงจากรถ" },
+        { en: "Get on, Get in", th: "ขึ้นรถ / เข้าไปในรถ" },
+        { en: "Drop off", th: "ไปส่ง" },
+        { en: "Wave off", th: "ร่ำลา" },
+        { en: "Stop off", th: "แวะพัก" },
+        { en: "Rip off, Cheat", th: "โกง" },
+        { en: "Set off", th: "เริ่มต้น / ออกเดินทาง" },
+        { en: "Hustle and Bustle", th: "ยุ่ง / วุ่นวาย" },
+        { en: "Pick and Choose", th: "เลือกสรร" },
+        { en: "Scrimp and Save", th: "ประหยัด" },
+        { en: "Safe and Sound", th: "ปลอดภัย" },
+        { en: "Now and Again", th: "เวลาใดเวลาหนึ่ง / บางครั้ง" },
+        { en: "Chaos, Confusion, Riot", th: "ความสับสน / ความวุ่นวาย" },
+        { en: "From now on", th: "ต่อจากนี้" },
+        { en: "Destiny", th: "พรหมลิขิต" },
+        { en: "Relieved", th: "โล่งอก" },
+        { en: "Afford", th: "จ่าย" },
+        { en: "Find", th: "ค้นพบ" },
+        { en: "Found", th: "ก่อตั้ง" },
+        { en: "Duty-free shop", th: "ร้านค้าปลอดภาษี" },
+        { en: "Exhausted", th: "เหนื่อย" },
+        { en: "Education", th: "การศึกษา" },
+        { en: "Educate", th: "ศึกษา" },
+        { en: "Educational", th: "เกี่ยวกับการศึกษา" },
+        { en: "Educator", th: "ครู / นักการศึกษา" },
+        { en: "Dean", th: "คณบดี" },
+        { en: "Head Teacher", th: "ครูใหญ่" },
+        { en: "Head Master", th: "หัวหน้า" },
+        { en: "Director, Principle", th: "ผอ." },
+        { en: "Janitor", th: "ภารโรง" },
+        { en: "Nursery", th: "ก่อนอนุบาล" },
+        { en: "Kindergarten", th: "อนุบาล" },
+        { en: "Primary", th: "ประถม" },
+        { en: "Secondary", th: "มัธยม" },
+        { en: "High School", th: "มัธยมปลาย" },
+        { en: "University", th: "มหาวิทยาลัย" },
+        { en: "Vocational", th: "อาชีวะ" },
+        { en: "Retake Exam", th: "สอบซ่อม" },
+        { en: "Homework, Assignment", th: "งาน" },
+        { en: "Enrol", th: "สมัคร / ลงทะเบียน" },
+        { en: "Enrollment", th: "การสมัคร / การเข้าร่วม" },
+        { en: "Mark, Point", th: "คะแนน" },
+        { en: "Degree", th: "ปริมาณ" },
+        { en: "Quantity", th: "ปริมาณ" },
+        { en: "Quality", th: "คุณภาพ" },
+        { en: "Qualification", th: "คุณสมบัติ" },
+        { en: "Qualify", th: "ทดสอบ" },
+        { en: "Disqualify", th: "ไม่ผ่านการทดสอบ" },
+        { en: "Tutor", th: "อาจารย์พิเศษ" },
+        { en: "Lecture", th: "การสอนแบบบรรยาย" },
+        { en: "Seminar", th: "การสอนแบบสัมมนา" },
+        { en: "Curriculum", th: "หลักสูตรระยะยาว" },
+        { en: "Course", th: "หลักสูตรระยะสั้น" },
+        { en: "Pupil", th: "นักเรียน / ประถม / มัธยมต้น" },
+        { en: "Student", th: "นักเรียน" },
+        { en: "Graduated", th: "จบการศึกษา" },
+        { en: "Dropped out", th: "ลาออก" },
+        { en: "Hand", th: "ส่ง" },
+        { en: "Deserve", th: "สมควร" },
+        { en: "Serve", th: "บริการ" },
+        { en: "Reserve", th: "จอง" },
+        { en: "Conserve", th: "อนุรักษ์" },
+        { en: "Preserve", th: "การถนอมอาหาร" },
+        { en: "Hand out", th: "แจกจ่าย" },
+        { en: "Compulsory", th: "บังคับ" },
+        { en: "Live and learn", th: "เรียนรู้จากประสบการณ์" },
+        { en: "Learn one's lesson", th: "ได้รับบทเรียน" },
+        { en: "Learn sth by heart", th: "ท่องจำจนขึ้นใจ" },
+        { en: "Read sb like a book", th: "รู้จักผู้อื่นอย่างถ่องแท้" },
+        { en: "Poem", th: "กลอน / บทกวี" },
+        { en: "Exceptional", th: "ผิดปกติ / พิเศษ" },
+        { en: "Exceptions", th: "การยกเว้น" },
+        { en: "Penalty", th: "ลงโทษ" },
+        { en: "Photography", th: "การถ่ายภาพ" },
+        { en: "Field trips", th: "ทัศนศึกษา" },
+        { en: "Exhibitions", th: "การจัดนิทรรศการ" },
+        { en: "Rehearsal", th: "การซ้อม" },
+        { en: "Remind", th: "เตือน" },
+        { en: "Catch up", th: "ติดตาม" },
+        { en: "Increase, Raise, Rise, Soar, Surge, Skyrocket, Boost, Escalate, Intensify, Augment, Snowball", th: "เพิ่ม" },
+        { en: "Decrease, Reduce, Lower, Decline, Discount, Lessen, Shrinkage, Plummet", th: "ลด" },
+        { en: "Take down", th: "จดบันทึก" },
+        { en: "Let down", th: "ทำให้ผิดหวัง" },
+        { en: "Settle down", th: "ตั้งหลัก" },
+        { en: "Break down", th: "พัง" },
+        { en: "Go down", th: "ลดลง" },
+        { en: "Come down with", th: "ไม่สบาย" },
+        { en: "Weird, Queer, Odd, Strange, Abnormal, Unusual, Whimsical, Extraordinary", th: "ประหลาด" },
+        { en: "Wonderful", th: "มหัศจรรย์" },
+        { en: "Mythical", th: "เกี่ยวกับตำนาน" },
+        { en: "Myth, Legend, Saga, Fable", th: "ตำนาน" },
+        { en: "Creatures", th: "สิ่งมีชีวิต" },
+        { en: "Countless, Numberless, Numerous", th: "มากมาย" },
+        { en: "Involve", th: "เกี่ยวข้อง" },
+        { en: "Slaying, Killing", th: "ฆ่า" },
+        { en: "Symbol, Sign, Logo, Image, Emblem", th: "สัญลักษณ์" },
+        { en: "Symbolic", th: "เกี่ยวกับสัญลักษณ์" },
+        { en: "Symbolically", th: "ซึ่งเกี่ยวกับสัญลักษณ์" },
+        { en: "Symbolize", th: "ทำให้เป็นสัญลักษณ์" },
+        { en: "Conjuration, Black magic", th: "มนต์ดำ" },
+        { en: "Superstition", th: "ไสยศาสตร์" },
+        { en: "Evil", th: "ชั่วร้าย" },
+        { en: "Magic", th: "เวทมนตร์" },
+        { en: "Guard, Protect, Prevent, Defend, Secure, Safeguard", th: "ป้องกัน" },
+        { en: "Treasure", th: "สมบัติ" },
+        { en: "Spiky", th: "แหลมคม" },
+        { en: "Mysterious", th: "ลึกลับ" },
+        { en: "Riddle, Quest, Puzzle, Enigma", th: "ปริศนา" },
+        { en: "Attractive", th: "น่าดึงดูด" },
+        { en: "Haunting, Unforgettable", th: "หลอน" },
+        { en: "Lure, Tempt, Allure, Entice", th: "หลอก" },
+        { en: "Seduce", th: "หลอกไปฆ่า" },
+        { en: "Rape", th: "ข่มขืน" },
+        { en: "Sailors", th: "กะลาสี" },
+        { en: "Steer, Guide", th: "บังคับ / สั่งการ" },
+        { en: "Magical", th: "เวทมนตร์" },
+        { en: "Horses", th: "ม้าตัวผู้" },
+        { en: "Mare", th: "ม้าตัวเมีย" },
+        { en: "Pony", th: "ลูกม้า" },
+        { en: "Ox", th: "วัวตัวผู้" },
+        { en: "Cow", th: "วัวตัวเมีย" },
+        { en: "Dog", th: "สุนัขตัวผู้" },
+        { en: "Bitch", th: "สุนัขตัวเมีย" },
+        { en: "Legendary", th: "เกี่ยวกับตำนาน" },
+        { en: "Legendize", th: "ทำให้เป็นตำนาน" },
+        { en: "Wild", th: "ป่าเถื่อน" },
+        { en: "Fierce", th: "ดุร้าย" },
+        { en: "Glossy, Shiny", th: "เป็นประกาย" },
+        { en: "Coats", th: "ขน" },
+        { en: "Horn", th: "เขา" },
+        { en: "Projecting from, Sticking out", th: "งอก / ยื่นออก" },
+        { en: "Foreheads", th: "หน้าผาก" },
+        { en: "Immune", th: "มีภูมิคุ้มกัน" },
+        { en: "Immunity", th: "ภูมิคุ้มกัน / เครื่องราง" },
+        { en: "Immunize, Vaccinate", th: "ทำให้มีภูมิคุ้มกัน" },
+        { en: "Immunology", th: "ภูมิคุ้มกันวิทยา" },
+        { en: "Immunodeficiency", th: "ภูมิคุ้มกันบกพร่อง" },
+        { en: "Inject", th: "ฉีด" },
+        { en: "Infect", th: "ติดเชื้อ" },
+        { en: "Rabies", th: "พิษสุนัขบ้า" },
+        { en: "Boa", th: "งูรัด" },
+        { en: "Feared", th: "ถูกกลัว" },
+        { en: "Hated", th: "ถูกเกลียด" },
+        { en: "Fondness", th: "ความชื่นชอบ" },
+        { en: "Folklore", th: "นิทานพื้นบ้าน" },
+        { en: "Courage, Bravery", th: "ความกล้าหาญ" },
+        { en: "Vast, Huge", th: "ใหญ่" },
+        { en: "Races", th: "สายพันธุ์" },
+        { en: "Violent, Brutal", th: "รุนแรง" },
+        { en: "Gentle, Polite, Humble", th: "สุภาพ" },
+        { en: "Intellectual", th: "มีสติปัญญา" },
+        { en: "Wise", th: "ฉลาด" },
+        { en: "Diplomatic", th: "มีการศึกษา" },
+        { en: "Diplomat", th: "นักการทูต" },
+        { en: "Inhale", th: "หายใจเข้า" },
+        { en: "Exhale", th: "หายใจออก" },
+        { en: "Inhaler", th: "ยาดม" },
+        { en: "Abandon, Desert, Leave, Abdicate, Renounce, Relinquish", th: "ละทิ้ง" },
+        { en: "Immortal", th: "อมตะ" },
+        { en: "Rattle Snake", th: "งูหางกระดิ่ง" },
+        { en: "Snake", th: "คดหรืองู / งู" },
+        { en: "Floorboards", th: "กระดานไม้" },
+        { en: "Fight to the death", th: "ต่อสู้จนตาย" },
+        { en: "Live in fear of", th: "อยู่ท่ามกลางความกลัว" },
+        { en: "Scared to death of", th: "โคตรกลัว" },
+        { en: "Frighten the life out of", th: "ทำให้ตกใจกลัว" },
+        { en: "Head Villager", th: "ผู้นำหมู่บ้าน" },
+        { en: "Trembled", th: "สั่น" },
+        { en: "Gasped", th: "หอบ / สูดลมหายใจ" },
+        { en: "Onomatopoeia", th: "คำเลียนเสียง" },
+        { en: "Mumble", th: "บ่นพึมพำ" },
+        { en: "Cold Blood", th: "เลือดเย็น" },
+        { en: "Bloody", th: "ซึ่งเลือดอาบ / นองเลือด" },
+        { en: "Bleed", th: "เลือดออก" },
+        { en: "Shaking like a leaf", th: "สั่นเหมือนใบไม้" },
+        { en: "Raised", th: "ยกขึ้น" },
+        { en: "Rose", th: "เพิ่มขึ้น" },
+        { en: "Lay", th: "นอน" },
+        { en: "Laid", th: "วางไว้" },
+        { en: "Ghost, Demon, Devil, Phantom, Shadow, Vision, Banshee, Spook", th: "ผี" },
+        { en: "Monster, Beast, Behemoth, Villain, Barbarian, Titan, Werewolf", th: "สัตว์ประหลาด" },
+        { en: "Witch, Conjurer, Necromancer, Sorcerer", th: "แม่มด" },
+        { en: "Recognize, Notice, Perceive, Distinguish, Pinpoint, Diagnose", th: "รับรู้" },
+        { en: "Celebrate, Signalize, Solemnize, Ritualize, Jubilate", th: "ฉลอง" },
+        { en: "Celebration, Ceremony, Festival, Jubilee, Spree, Remembrance", th: "การฉลอง" },
+        { en: "Pull over", th: "จอด" },
+        { en: "Come over", th: "เยี่ยมถึง" },
+        { en: "Get over", th: "หายป่วย" },
+        { en: "Take over", th: "ครอบครอง" },
+        { en: "Hand over", th: "ส่งผ่าน" },
+        { en: "Run over", th: "ชน" },
+        { en: "Go over", th: "ทบทวน" },
+        { en: "Locomotion", th: "การเคลื่อนที่" },
+        { en: "Propulsion", th: "แรงขับเคลื่อน" },
+        { en: "Suspension", th: "การระงับ / การกระเทือน" },
+        { en: "Carriageway", th: "ช่องทางเดินรถ" },
+        { en: "Aerodynamics", th: "การเคลื่อนที่ในอากาศ" },
+        { en: "Capacity", th: "ความจุ" },
+        { en: "Transit", th: "การเปลี่ยน" },
+        { en: "Freight", th: "ค่าขนส่งสินค้า" },
+        { en: "Vessel", th: "เรือเดินสมุทร / เรือขนส่ง" },
+        { en: "Monorail", th: "รถไฟรางเดี่ยว" },
+        { en: "Amphibious", th: "สะเทินน้ำสะเทินบก" },
+        { en: "Hybrid", th: "ผสมผสาน" },
+        { en: "Locomotive", th: "หัวรถจักร / รถไฟ" },
+        { en: "Populate", th: "ขนคนเข้า" },
+        { en: "Suspend", th: "ระงับ" },
+        { en: "Ignite", th: "จุดไฟ" },
+        { en: "Ignition", th: "การจุด" },
+        { en: "Militarize", th: "จัดกำลังพล" },
+        { en: "Reigning", th: "ครอบคลุม" },
+        { en: "Mechanical", th: "กลไก" },
+        { en: "Aviation", th: "การบิน" },
+        { en: "Automotive", th: "ยานยนต์" },
+        { en: "Engineering", th: "วิศวกรรม" },
+        { en: "Crucial", th: "สำคัญ" },
+        { en: "Resistance", th: "แรงต้าน" },
+        { en: "Improving", th: "พัฒนา" },
+        { en: "Efficiency", th: "ประสิทธิภาพ" },
+        { en: "Speed, Velocity", th: "ความเร็ว" },
+        { en: "Combine", th: "รวม" },
+        { en: "Combustion", th: "การเผาไหม้" },
+        { en: "Public transport", th: "การขนส่งสาธารณะ" },
+        { en: "Peak hour", th: "ชั่วโมงเร่งด่วน" },
+        { en: "Demand", th: "ความต้องการ" },
+        { en: "Rail-based", th: "ระบบขนส่งทางราง" },
+        { en: "Evolve", th: "วิวัฒนาการ" },
+        { en: "Road transport", th: "การขนส่งทางถนน" },
+        { en: "Infrastructure", th: "โครงสร้างพื้นฐาน" },
+        { en: "Excluding", th: "นอกเหนือ" },
+        { en: "Including", th: "รวมเข้า" },
+        { en: "Specialized", th: "พิเศษ" },
+        { en: "Military", th: "ทหาร" },
+        { en: "Principles", th: "หลักการ" },
+        { en: "Principal", th: "ผู้อำนวยการ" },
+        { en: "Ensure", th: "ทำให้มั่นใจ" },
+        { en: "Stability", th: "ความมั่นคง" },
+        { en: "Boarding pass", th: "บัตรเครื่องบิน" },
+        { en: "Aisle seat", th: "ที่นั่งติดทางเดิน" },
+        { en: "Window seat", th: "ที่นั่งติดหน้าต่าง" },
+        { en: "Direct flight", th: "การบินตรง" },
+        { en: "Connecting flight", th: "การบินต่อเครื่อง" },
+        { en: "Departure time", th: "เวลาที่เครื่องบินจะออก" },
+        { en: "Boarding time", th: "เวลาเริ่มขึ้นเครื่อง" },
+        { en: "Domestic", th: "ภายในประเทศ" },
+        { en: "International", th: "ต่างประเทศ" },
+        { en: "Identification card", th: "บัตรประชาชน" },
+        { en: "Boarding school", th: "โรงเรียนประจำ" },
+        { en: "Vocational school", th: "อาชีวศึกษา" },
+        { en: "Grammar school", th: "โรงเรียนบริหาร" },
+        { en: "Comprehensive school", th: "โรงเรียนรวม" },
+        { en: "Auditorium", th: "หอประชุม" },
+        { en: "Laboratory", th: "ห้องทดลอง" },
+        { en: "Library", th: "ห้องสมุด" },
+        { en: "Cafeteria", th: "โรงอาหาร" },
+        { en: "Focuses on", th: "ใส่ใจ" },
+        { en: "Structure", th: "โครงสร้าง" },
+        { en: "Sociology", th: "สังคมวิทยา" },
+        { en: "Geography", th: "ภูมิศาสตร์" },
+        { en: "Discipline", th: "ระเบียบวินัย" },
+        { en: "Philosophy", th: "ปรัชญา" },
+        { en: "Philosopher", th: "นักปรัชญา" },
+        { en: "Astronomy", th: "ดาราศาสตร์" },
+        { en: "Examines, Detect, Investigate, Diagnose, Probe into", th: "การตรวจสอบ" },
+        { en: "Civilizations", th: "อารยธรรม" },
+        { en: "The philosophy of Sufficiency Economy", th: "ปรัชญาเศรษฐกิจพอเพียง" },
+        { en: "Linguistics", th: "ภาษาศาสตร์" },
+        { en: "Lingual", th: "เกี่ยวกับภาษา" },
+        { en: "Language", th: "ภาษา" },
+        { en: "Ecology", th: "นิเวศวิทยา" },
+        { en: "Archaeology", th: "โบราณคดี" },
+        { en: "Field", th: "สาขา" },
+        { en: "Astro", th: "ดาว" },
+        { en: "Astrology", th: "โหราศาสตร์" },
+        { en: "Astronomer", th: "นักดาราศาสตร์" },
+        { en: "Astrologer", th: "นักโหราศาสตร์" },
+        { en: "Astronavigation", th: "การเดินทางในอวกาศ" },
+        { en: "Diagnose", th: "วินิจฉัย" },
+        { en: "Archaeologist", th: "นักโบราณคดี" },
+        { en: "Interviewer", th: "ผู้สัมภาษณ์" },
+        { en: "Heritage", th: "มรดก" },
+        { en: "Recipe", th: "สูตรอาหาร" },
+        { en: "Region", th: "ภูมิภาค" },
+        { en: "Custom", th: "ธรรมเนียม" },
+        { en: "Perseverance", th: "ความอดทน" },
+        { en: "Contribution", th: "การให้" },
+        { en: "Dedicated, Devote", th: "อุทิศ" },
+        { en: "Philanthropy", th: "มูลนิธิ" },
+        { en: "Speech", th: "สุนทรพจน์" },
+        { en: "Achievements", th: "ความสำเร็จ" },
+        { en: "Mission", th: "ภารกิจ" },
+        { en: "Confidently", th: "อย่างมั่นใจ" },
+        { en: "Each of", th: "แต่ละ" },
+        { en: "Recognition", th: "การรับรู้" },
+        { en: "Blend", th: "ผสมผสาน" },
+        { en: "Tradition", th: "ประเพณี" },
+        { en: "Modernity", th: "ความทันสมัย" },
+        { en: "Theory", th: "ทฤษฎี" },
+        { en: "Proposed", th: "เสนอ" },
+        { en: "Proposal", th: "ข้อเสนอ / ข้อเสนอแนะ" },
+        { en: "Solution", th: "วิธีแก้" },
+        { en: "Versatility", th: "ความสามารถที่หลากหลาย" },
+        { en: "Retirement", th: "การเกษียณ" },
+        { en: "Pension", th: "เงินบำนาญ" },
+        { en: "Release", th: "ปล่อย" },
+        { en: "According", th: "ตาม" },
+        { en: "Recent", th: "ล่าสุด" },
+        { en: "Announcement", th: "การประกาศ" },
+        { en: "Conflict", th: "ปัญหา / ประเด็นแย้ง" },
+        { en: "Collaborate", th: "ร่วมมือ" },
+        { en: "Instead", th: "แทนที่" },
+        { en: "Implement", th: "ดำเนินการ" },
+        { en: "National parks", th: "อุทยานแห่งชาติ" },
+        { en: "Monsoon", th: "มรสุม" },
+        { en: "Flood-prone area", th: "พื้นที่เสี่ยงต่อการเกิดน้ำท่วม" },
+        { en: "Mangrove", th: "ป่าชายเลน" },
+        { en: "Restoration", th: "การฟื้นฟู" },
+        { en: "Ecotourism", th: "การท่องเที่ยวเชิงนิเวศ" },
+        { en: "Initiative", th: "ความคิดริเริ่ม" },
+        { en: "Preservation", th: "การอนุรักษ์" },
+        { en: "Effort", th: "ความพยายาม" },
+        { en: "Decade", th: "ทศวรรษ" },
+        { en: "Contribute, Give", th: "ให้" },
+        { en: "Distribute, Donate", th: "แจกจ่าย" },
+        { en: "Subscribers", th: "ผู้ติดตาม" },
+        { en: "Subscribe", th: "สมัคร" },
+        { en: "Subscription", th: "การลงทะเบียน" },
+        { en: "Prescribe", th: "จ่ายยา" },
+        { en: "Prescription", th: "การสั่งยา" },
+        { en: "Inscribe", th: "จารึก" },
+        { en: "Inscription", th: "การจารึก" },
+        { en: "Describe", th: "อธิบาย" },
+        { en: "Description", th: "การบรรยาย" },
+        { en: "Documentary", th: "สารคดี" },
+        { en: "Coastal", th: "ชายฝั่ง" },
+        { en: "Argument", th: "ข้อโต้แย้ง" },
+        { en: "Congestion", th: "ความแออัด" },
+        { en: "Distant", th: "ไกล" },
+        { en: "Candidate", th: "ผู้สมัคร" },
+        { en: "Requirements", th: "ความต้องการ / ข้อกำหนด" },
+        { en: "Protagonist", th: "ตัวเอก" },
+        { en: "Antagonist", th: "ตัวร้าย" },
+        { en: "Moral", th: "ศีลธรรม" },
+        { en: "Diverge", th: "แยก / เบี่ยงทาง" },
+        { en: "Outdated", th: "ล้าสมัย" },
+        { en: "Negotiation", th: "การเจรจา" },
+        { en: "Abruptly", th: "ทันที" }
+    ];
+
+    // แบ่งคำศัพท์ออกเป็น 3 เซ็ต
+    const chunkSize = Math.ceil(rawData.length / 3);
+    const sets = {
+        1: rawData.slice(0, chunkSize),
+        2: rawData.slice(chunkSize, chunkSize * 2),
+        3: rawData.slice(chunkSize * 2),
+        all: rawData
+    };
+
+    let currentQueue = [];
+    let currentCard = null;
+
+    // แสดงจำนวนคำในหน้าแรก
+    document.getElementById('count-1').innerText = `${sets[1].length} คำ`;
+    document.getElementById('count-2').innerText = `${sets[2].length} คำ`;
+    document.getElementById('count-3').innerText = `${sets[3].length} คำ`;
+    document.getElementById('count-all').innerText = `${rawData.length} คำ`;
+
+    function startSet(setKey) {
+        currentQueue = [...sets[setKey]];
+        
+        // สลับตำแหน่งการเริ่มต้นในเซ็ตแบบสุ่ม
+        currentQueue.sort(() => Math.random() - 0.5);
+
+        document.getElementById('selection-screen').style.display = 'none';
+        document.getElementById('completion-screen').style.display = 'none';
+        document.getElementById('flashcard-app').style.display = 'block';
+        document.getElementById('subtitle').style.display = 'none';
+        
+        nextCard();
+    }
+
+    function goHome() {
+        document.getElementById('flashcard-app').style.display = 'none';
+        document.getElementById('completion-screen').style.display = 'none';
+        document.getElementById('selection-screen').style.display = 'flex';
+        document.getElementById('subtitle').style.display = 'block';
+    }
+
+    function nextCard() {
+        if (currentQueue.length === 0) {
+            document.getElementById('flashcard-app').style.display = 'none';
+            document.getElementById('completion-screen').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('stats').innerText = `คำที่เหลือต้องเคลียร์: ${currentQueue.length} คำ`;
+
+        currentCard = currentQueue[0];
+
+        const cardElement = document.getElementById('card');
+        cardElement.classList.remove('is-flipped');
+
+        document.getElementById('front-word').innerText = currentCard.en;
+        document.getElementById('back-word').innerText = currentCard.th;
+    }
+
+    function toggleFlip() {
+        const cardElement = document.getElementById('card');
+        cardElement.classList.toggle('is-flipped');
+    }
+
+    function answerCard(isCorrect) {
+        const answeredCard = currentQueue.shift();
+
+        if (!isCorrect) {
+            // สุ่มแทรกคำที่ตอบผิดกลับเข้าไปใหม่ในคิว
+            const randomIndex = Math.floor(Math.random() * (currentQueue.length + 1));
+            currentQueue.splice(randomIndex, 0, answeredCard);
+        }
+
+        nextCard();
+    }
+</script>
+
+</body>
+</html>
