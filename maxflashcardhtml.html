@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maxandcheese Flashcard Website 3~3</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Maxandcheese Flashcard Website 3~3</h1>
+    <div class="subtitle" id="subtitle">เลือกเซ็ตคำศัพท์ที่คุณต้องการฝึกฝน</div>
+
+    <!-- หน้าเลือกเซ็ต -->
+    <div id="selection-screen" class="set-selection">
+        <button class="btn-set" onclick="startSet(1)">
+            <span>🔥 เซ็ตที่ 1: กินเอาเป็น</span>
+            <span id="count-1" style="font-size: 0.85rem; color: #64748b;">กำลังโหลด...</span>
+        </button>
+        <button class="btn-set" onclick="startSet(2)">
+            <span>🔥 เซ็ตที่ 2: กินเอาอยู่</span>
+            <span id="count-2" style="font-size: 0.85rem; color: #64748b;">กำลังโหลด...</span>
+        </button>
+        <button class="btn-set" onclick="startSet(3)">
+            <span>🔥 เซ็ตที่ 3: กินเอาตาย</span>
+            <span id="count-3" style="font-size: 0.85rem; color: #64748b;">กำลังโหลด...</span>
+        </button>
+        <button class="btn-set" onclick="startSet('all')" style="background-color: #e0e7ff; border-color: #c7d2fe; color: var(--primary);">
+            <span>🚀 ลุยทั้งหมด (ทุกเซ็ต 3~3)</span>
+            <span id="count-all" style="font-size: 0.85rem; font-weight: bold;">ทั้งหมด</span>
+        </button>
+    </div>
+
+    <!-- หน้าเล่น Flashcard -->
+    <div id="flashcard-app" style="display: none; width: 100%;">
+        <div class="menu-bar">
+            <button class="btn-back" onclick="goHome()">⬅ เลือกเซ็ตอื่น</button>
+            <div id="stats" class="stats" style="margin: 0;">คำที่เหลือ: 0</div>
+        </div>
+
+        <div class="card-container" onclick="toggleFlip()">
+            <div class="card" id="card">
+                <div class="card-face card-front">
+                    <div class="card-word" id="front-word">Loading...</div>
+                    <div class="card-hint">แตะการ์ดเพื่อดูความหมาย</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-word" id="back-word">Loading...</div>
+                    <div class="card-hint">แตะการ์ดเพื่อกลับด้านหน้า</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons" id="action-buttons">
+            <button class="btn btn-wrong" onclick="answerCard(false)">❌ จำไม่ได้ / ผิด (วนซ้ำ)</button>
+            <button class="btn btn-right" onclick="answerCard(true)">✔️ จำได้ / ถูก</button>
+        </div>
+    </div>
+
+    <!-- หน้าแสดงผลเมื่อเคลียร์ครบ -->
+    <div id="completion-screen" class="completion-screen" style="display: none;">
+        <h2>🎉 ยอดเยี่ยมมาก!</h2>
+        <p>คุณฝึกฝนคำศัพท์เซ็ตนี้จนครบทุกคำเรียบร้อยแล้ว</p>
+        <button class="btn-restart" onclick="goHome()">กลับไปเลือกเซ็ตอื่น</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
